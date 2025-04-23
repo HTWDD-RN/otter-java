@@ -1,0 +1,53 @@
+On 2024/11/27 Michael Danzig changed the file pom.xml.
+  Reason: 
+    otter-java couldn't be built with the current version (0.2.0-SNAPSHOT) due to the following problems:
+      1. The API was altered and the altered version was rejected by Revapi.
+      2. Something about the versions of Revapi and SpotBugs didn't allow maven to build the whole project.
+  Description of the changes:
+    1. The version of SpotBugs was updated from 4.2.0 to 4.8.6.4
+    2. The version of Revapi was updated from 0.13.2 to 0.15.0
+    3. Revapi was notified of changes to several files in the block <revapi.differences>
+
+On 2025/02/21 Michael Danzig changed the files
+	1. otter-model/src/main/java/se/l4/otter/model/internal/SharedListImpl.java
+	2. otter-model/src/main/java/se/l4/otter/model/internal/SharedStringImpl.java
+	3. otter-model/src/test/java/se/l4/otter/model/SharedListTest.java
+  Reason: 
+    1. The change fixed a bug where the rest of the SharedListImpl was calculated wrongly in removeRange.
+    2. The change fixed a bug where SharedStringImpl's insert method triggered insertions twice instead of once.
+    3. The tests of the SharedList implementation needed to be made compatible with another project and it's own implementation for easier comparison.
+  Description of the changes:
+  	1. In otter-model/src/main/java/se/l4/otter/model/internal/SharedListImpl.java:
+  	  The line 213 was changed from 
+  		delta.retain(length - (toIndex - fromIndex));
+  	  to 
+  		delta.retain(length - index);
+  	2. In otter-model/src/main/java/se/l4/otter/model/internal/SharedStringImpl.java:
+  	  The lines 154 which read "this.value.insert(idx, value);" and the empty line 155 were removed.
+  	  This fix was found on https://github.com/LevelFourAB/otter-java/commit/924f12e2083a0e089bc5d26cddc723ff13163cb9
+  	3. 
+  	  In otter-model/src/test/java/se/l4/otter/model/SharedListTest.java the tests testCustomSharedListRemoveRange and testCustomSharedListRemove
+  	  and the static method assertSharedListEquals were added.
+
+On 2025/03/06 Michael Danzig changed the file otter-engine/src/test/java/se/l4/otter/engine/DefaultEditorControlTest.java    
+  Reason: 
+    More tests for delete operations were needed in order to compare the DefaultEditorControl with a custom implemention of EditorControl in another project.  
+  Description of the changes:
+  	added the two tests testEditsFromSameHistoryIdWithMultipleDeletes and testEditsFromSameHistoryIdWithMultipleDeletesOfTheSamePart    
+    
+On 2025/03/13 Michael Danzig changed the file pom.xml.
+  Reason: 
+  	Another project which depends on otter-java and spring-boot had problems with differing slf4j versions.
+  Description of the changes:
+  	slf4j was updated from version 1.7.30 to 2.0.16. 
+
+On 2025/04/04 Michael Danzig changed the file otter-model/src/main/java/se/l4/otter/model/DefaultModel.java    
+  Reason: 
+    The DefaultModel's method apply is only called by the SharedObjectEditorImpl when it receives a change caused by a SharedObject. 
+    All those changes are triggered locally. Therefore the SharedObjectEditor should be notified of a local change instead of a remote one.
+  Description of the changes:
+  	Changed line 161 from 
+  		objectEditor.operationApplied(op, false);
+  	to 
+  		objectEditor.operationApplied(op, true); 
+  
